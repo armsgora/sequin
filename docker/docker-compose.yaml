@@ -24,6 +24,8 @@ services:
         condition: service_started
       sequin_postgres:
         condition: service_healthy
+    networks:
+      - dokploy-network
 
   sequin_postgres:
     image: postgres:16
@@ -45,6 +47,8 @@ services:
       retries: 5
       start_period: 2s
       start_interval: 1s
+    networks:
+      - dokploy-network
 
   sequin_redis:
     image: redis:7
@@ -53,6 +57,8 @@ services:
     command: ["redis-server", "--port", "6379"]
     volumes:
       - sequin_redis_data:/data
+    networks:
+      - dokploy-network
 
   sequin_prometheus:
     image: prom/prometheus
@@ -60,6 +66,8 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
+    networks:
+      - dokploy-network
 
   sequin_grafana:
     image: grafana/grafana
@@ -72,11 +80,17 @@ services:
       - ./grafana_datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
       - ./grafana_dashboard.yml:/etc/grafana/provisioning/dashboards/dashboard.yml
       - ./dashboard.json:/etc/grafana/dashboards/dashboards/sequin.json
+    networks:
+      - dokploy-network
 
 volumes:
   sequin_postgres_data:
   sequin_redis_data:
   sequin_grafana_data:
+
+networks:
+  dokploy-network:
+    external: true
 
 # Un-comment this to enable IPv6
 # You may need to run
